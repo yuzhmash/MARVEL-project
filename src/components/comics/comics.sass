@@ -1,0 +1,40 @@
+.comics
+    &__header
+        position: relative
+        display: flex
+        justify-content: space-between
+        align-items: conter
+        background-color: #232222
+        height: 100px
+        margin-bottom: 50px
+        padding: 0 25px 0 45px
+        &_title
+            position: absolute
+            left: 22%
+            color: #FFF
+            font-size: 24px
+            font-weight: 700
+            margin-top: 18px
+    &__grid
+        display: grid
+        grid-template-columns: repeat(4, 1fr)
+        column-gap: 67px
+        row-gap: 55px
+    &__item
+        position: relative
+        width: 225px
+        min-height: 415px
+        cursor: pointer
+        img
+            width: 100%
+            height: 345px
+            margin-bottom: 10px
+    &__price
+        color: rgba(0, 0, 0, 0.60)
+        font-size: 14px
+        font-weight: 700
+    &__title
+        color: #000
+        font-size: 14px
+        font-weight: 700
+        margin-bottom: 5px

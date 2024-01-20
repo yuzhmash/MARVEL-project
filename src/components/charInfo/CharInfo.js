@@ -1,47 +1,48 @@
-import { Component } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types'; 
 
-import MarvelService from '../../services/MarvelServer';
+
+import useMarvelService from '../../services/MarvelServer';
 import Error from '../error/Error';
 import Spinner from '../spinner/Spinner';
 import Skeleton from '../skeleton/Skeleton';
 
 import './charInfo.scss';
 
-class CharInfo extends Component {
+const CharInfo = props => {
 
-    state = {
-        char: null,
-        loading: false,
-        error: false,
-        objectFit: 'cover'
-    }
+    const [char, setChar] = useState(null)
+    const [objectFit, setObjectFit] = useState('cover')
 
-    marvelService = new MarvelService();
+    const {getCharacter, loading, error} = useMarvelService();
 
-    componentDidCatch() {
-        this.updateChar()
-    }
+    // useEffect(() => {
+    //     updateChar()
+    // })
 
-    componentDidUpdate(prevProp) {
-        if (this.props.charId !== prevProp.charId) {
-            this.updateChar();
+    // componentDidCatch() {
+    //     this.updateChar()
+    // }
+
+    const prevCharIdRef = useRef();
+
+    useEffect(() => {
+        if (prevCharIdRef.current !== props.charId) {
+          updateChar();
         }
-    }
+        prevCharIdRef.current = props.charId;
+      }, [props.charId]);
 
-    updateChar = () => {
-        const {charId} = this.props;
+    const updateChar = () => {
+        const {charId} = props;
         if (!charId) {
             return;
         }
-
-        this.onCharLoading();
-        this.marvelService
-            .getCharacter(charId)
-            .then(this.onCharLoaded)
-            .catch(this.onError)
+        getCharacter(charId)
+            .then(onCharLoaded)
     }
 
-    onCharLoaded = (char) => {
+    const onCharLoaded = (char) => {
         // if (char.description === '') { 
         //     char.description = 'There is no information available about this character. Please visit the homepage to find more info'
         // } else if (char.description.length >= 209) {
@@ -57,42 +58,22 @@ class CharInfo extends Component {
         //         objectFit: 'cover'
         //     })
         // }
-        this.setState({
-            char, 
-            loading: false
-        })
+        setChar(char)
     }
 
-    onCharLoading = () => {
-        this.setState({
-            loading: true
-        })
-    }
+    const skeleton = char || loading || error ? null : <Skeleton/>;
+    const spinner = loading ? <Spinner/> : null;
+    const errorMessage = error ? <Error/> : null;
+    const content = !(spinner || error || !char) ? <View char={char}/> : null
 
-    onError = () => {
-        this.setState({
-            loading: false,
-            error: true
-        })
-    }
-
-    render() {
-        const {char, loading, error} = this.state
-
-        const skeleton = char || loading || error ? null : <Skeleton/>;
-        const spinner = loading ? <Spinner/> : null;
-        const errorMessage = error ? <Error/> : null;
-        const content = !(spinner || error || !char) ? <View char={char}/> : null
-
-        return (
-            <div className="char__info">
-                {skeleton}
-                {spinner}
-                {errorMessage}
-                {content}
-            </div>
-        )
-    }
+    return (
+        <div className="char__info">
+            {skeleton}
+            {spinner}
+            {errorMessage}  
+            {content}
+        </div>
+    )
 }
 
 const View = ({char}) => {
@@ -127,7 +108,7 @@ const View = ({char}) => {
                 {comics.length > 0 ? null : 'There is no comics with this character'}
                 {
                     comics.map((item, i) => {
-                        if (i > 9) return;
+                        if (i > 9) return
                         return (
                             <li key={i} className="char__comics-item">
                                 {item.name}
@@ -139,5 +120,10 @@ const View = ({char}) => {
         </>
     )
 }
+
+CharInfo.propTypes = {
+    charId: PropTypes.number
+}
+
 
 export default CharInfo;
